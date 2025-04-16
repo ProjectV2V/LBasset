@@ -7,21 +7,21 @@ SERVICE_FILE="/etc/systemd/system/go-bridge.service"
 BINARY="$INSTALL_DIR/go-bridge"
 RAW_GO_URL="https://raw.githubusercontent.com/ProjectV2V/LBasset/main/go-bridge-final.go"
 
-# Save the Go code
+# دانلود فایل Go
 curl -sL "$RAW_GO_URL" -o /tmp/go-bridge.go
 
-# Set up Go module workspace
+# ساختن محیط کاری و تنظیم ماژول Go
 mkdir -p /tmp/gobridge
 cp /tmp/go-bridge.go /tmp/gobridge/main.go
 cd /tmp/gobridge
 go mod init gobridge
 go get golang.org/x/net/proxy
 
-# Compile
+# کامپایل برنامه
 go build -o "$BINARY" main.go
 chmod +x "$BINARY"
 
-# Create systemd service
+# ساخت فایل سرویس systemd
 cat <<EOF > "$SERVICE_FILE"
 [Unit]
 Description=Go HTTP-to-SOCKS5 Bridge
@@ -36,7 +36,7 @@ User=root
 WantedBy=multi-user.target
 EOF
 
-# Reload and start service
+# راه‌اندازی سرویس
 systemctl daemon-reexec
 systemctl daemon-reload
 systemctl enable go-bridge
