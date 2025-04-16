@@ -10,11 +10,18 @@ RAW_GO_URL="https://raw.githubusercontent.com/ProjectV2V/LBasset/main/go-bridge-
 # Save the Go code
 curl -sL "$RAW_GO_URL" -o /tmp/go-bridge.go
 
+# Set up Go module workspace
+mkdir -p /tmp/gobridge
+cp /tmp/go-bridge.go /tmp/gobridge/main.go
+cd /tmp/gobridge
+go mod init gobridge
+go get golang.org/x/net/proxy
+
 # Compile
-go build -o "$BINARY" /tmp/go-bridge.go
+go build -o "$BINARY" main.go
 chmod +x "$BINARY"
 
-# Create service
+# Create systemd service
 cat <<EOF > "$SERVICE_FILE"
 [Unit]
 Description=Go HTTP-to-SOCKS5 Bridge
@@ -29,7 +36,7 @@ User=root
 WantedBy=multi-user.target
 EOF
 
-# Reload systemd and start the service
+# Reload and start service
 systemctl daemon-reexec
 systemctl daemon-reload
 systemctl enable go-bridge
