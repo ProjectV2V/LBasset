@@ -1,0 +1,12 @@
+[Unit]
+Description=Go HTTP-to-SOCKS5 Bridge
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/go-bridge
+Restart=always
+StandardOutput=file:/var/log/go-bridge/connections.log
+StandardError=file:/var/log/go-bridge/connections.log
+
+[Install]
+WantedBy=multi-user.target
