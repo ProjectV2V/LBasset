@@ -2,28 +2,26 @@
 
 echo "[+] Installing Go HTTP-to-SOCKS5 Bridge..."
 
-# نصب Go اگر نبود
-if ! command -v go &> /dev/null; then
-  apt update
-  apt install -y golang
-fi
+INSTALL_DIR="/usr/local/bin"
+SERVICE_FILE="/etc/systemd/system/go-bridge.service"
+BINARY="$INSTALL_DIR/go-bridge"
+RAW_GO_URL="https://raw.githubusercontent.com/ProjectV2V/LBasset/main/go-bridge-final.go"
 
-# دانلود سورس از GitHub کاربر
-curl -sLo /usr/local/bin/go-bridge-final.go https://raw.githubusercontent.com/projectv2/LBasset/main/go-bridge/go-bridge-final.go
+# Save the Go code
+curl -sL "$RAW_GO_URL" -o /tmp/go-bridge.go
 
-# ساخت فایل اجرایی
-cd /usr/local/bin/
-go build -o go-bridge go-bridge-final.go
-chmod +x /usr/local/bin/go-bridge
+# Compile
+go build -o "$BINARY" /tmp/go-bridge.go
+chmod +x "$BINARY"
 
-# ساخت فایل systemd
-cat <<EOF > /etc/systemd/system/go-bridge.service
+# Create service
+cat <<EOF > "$SERVICE_FILE"
 [Unit]
 Description=Go HTTP-to-SOCKS5 Bridge
 After=network.target
 
 [Service]
-ExecStart=/usr/local/bin/go-bridge
+ExecStart=$BINARY
 Restart=always
 User=root
 
@@ -31,8 +29,9 @@ User=root
 WantedBy=multi-user.target
 EOF
 
-# اجرای سرویس
+# Reload systemd and start the service
 systemctl daemon-reexec
+systemctl daemon-reload
 systemctl enable go-bridge
 systemctl restart go-bridge
 
